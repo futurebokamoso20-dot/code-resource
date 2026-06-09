@@ -1,39 +1,104 @@
-// 1. Get the 'creator' parameter from the URL (e.g., ?creator=techguru)
+// Get the 'creator' parameter from URL
 const urlParams = new URLSearchParams(window.location.search);
 const creatorParam = urlParams.get('creator');
 
-// 2. Fetch the database
+// Fetch the database
 fetch('database.json')
     .then(response => response.json())
     .then(data => {
-        // 3. Find the matching creator
-        const creatorData = data.find(creator => creator.username === creatorParam);
-
-        if (creatorData) {
-            // 4. Populate the HTML with the data
-            document.getElementById('creatorName').innerText = `@${creatorData.displayName}`;
-            document.getElementById('videoTitle').innerText = creatorData.videoTitle;
-            document.getElementById('codeBlock').innerText = creatorData.codeSnippet;
+        const gallery = document.getElementById('codeGallery');
+        const pageTitle = document.getElementById('pageTitle');
+        
+        if (creatorParam) {
+            // Show only this creator's videos
+            const creatorVideos = data.filter(item => item.username.includes(creatorParam));
             
-            // 5. Show the code container
-            document.getElementById('codeContainer').classList.remove('hidden');
+            if (creatorVideos.length > 0) {
+                pageTitle.innerText = `@${creatorVideos[0].displayName}'s Code Library`;
+                
+                creatorVideos.forEach(video => {
+                    const card = createVideoCard(video);
+                    gallery.appendChild(card);
+                });
+            } else {
+                pageTitle.innerText = "Creator not found";
+                gallery.innerHTML = '<p>No videos found for this creator.</p>';
+            }
         } else {
-            // Fallback if no creator is found or no parameter is in URL
-            document.getElementById('creatorName').innerText = "Programmatic Resource Network";
-            document.getElementById('videoTitle').innerText = "Submit your code snippets to get your own free copy-paste page.";
+            // Show all creators
+            pageTitle.innerText = "Browse All Code Libraries";
+            
+            const creators = {};
+            data.forEach(item => {
+                const baseUsername = item.username.split('-')[0];
+                if (!creators[baseUsername]) {
+                    creators[baseUsername] = [];
+                }
+                creators[baseUsername].push(item);
+            });
+            
+            Object.keys(creators).forEach(username => {
+                const videos = creators[username];
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <h2>@${videos[0].displayName}</h2>
+                    <p>${videos.length} video(s) available</p>
+                    <a href="?creator=${username}" style="color: #58a6ff;">View all codes →</a>
+                `;
+                gallery.appendChild(card);
+            });
         }
     })
     .catch(error => {
         console.error('Error loading database:', error);
-        document.getElementById('creatorName').innerText = "Error Loading";
+        document.getElementById('pageTitle').innerText = "Error Loading";
     });
 
-// 6. Copy to Clipboard Function
-function copyCode() {
-    const codeText = document.getElementById('codeBlock').innerText;
+function createVideoCard(video) {
+    const card = document.createElement('div');
+    card.className = 'video-card';
+    
+    // Determine thumbnail emoji based on video title
+    let emoji = '💻';
+    if (video.videoTitle.toLowerCase().includes('heart')) emoji = '❤️';
+    if (video.videoTitle.toLowerCase().includes('bmw')) emoji = '🚗';
+    if (video.videoTitle.toLowerCase().includes('clock')) emoji = '⏰';
+    if (video.videoTitle.toLowerCase().includes('spiral')) emoji = '🌀';
+    
+    card.innerHTML = `
+        <h2>${video.videoTitle}</h2>
+        <div class="thumbnail">${emoji}</div>
+        <pre><code>${escapeHtml(video.codeSnippet)}</code></pre>
+        <button onclick="copyCode(this)">📋 Copy Code</button>
+    `;
+    
+    return card;
+}
+
+function copyCode(button) {
+    const codeBlock = button.previousElementSibling.querySelector('code');
+    const codeText = codeBlock.innerText;
+    
     navigator.clipboard.writeText(codeText).then(() => {
-        const btn = document.getElementById('copyBtn');
-        btn.innerText = "✅ Copied!";
-        setTimeout(() => { btn.innerText = "📋 Copy Code"; }, 2000);
+        const originalText = button.innerText;
+        button.innerText = "✅ Copied!";
+        button.style.backgroundColor = "#2ea043";
+        
+        setTimeout(() => {
+            button.innerText = originalText;
+            button.style.backgroundColor = "#238636";
+        }, 2000);
     });
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
 }
