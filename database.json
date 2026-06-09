@@ -1,0 +1,8 @@
+[
+  {
+    "username": "techguru",
+    "displayName": "Tech Guru",
+    "videoTitle": "Top 5 Essential Termux Commands",
+    "codeSnippet": "pkg update && pkg upgrade\npkg install python\npkg install git"
+  }
+]
