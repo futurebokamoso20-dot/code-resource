@@ -59,16 +59,16 @@ function createVideoCard(video) {
     const card = document.createElement('div');
     card.className = 'video-card';
     
-    // Determine thumbnail emoji based on video title
-    let emoji = '💻';
-    if (video.videoTitle.toLowerCase().includes('heart')) emoji = '❤️';
-    if (video.videoTitle.toLowerCase().includes('bmw')) emoji = '🚗';
-    if (video.videoTitle.toLowerCase().includes('clock')) emoji = '⏰';
-    if (video.videoTitle.toLowerCase().includes('spiral')) emoji = '🌀';
+    let thumbnailHTML;
+    if (video.thumbnail && (video.thumbnail.endsWith('.jpg') || video.thumbnail.endsWith('.png'))) {
+        thumbnailHTML = `<img src="${video.thumbnail}" alt="${video.videoTitle}" class="thumbnail-img">`;
+    } else {
+        thumbnailHTML = `<div class="thumbnail">${video.thumbnail || '💻'}</div>`;
+    }
     
     card.innerHTML = `
         <h2>${video.videoTitle}</h2>
-        <div class="thumbnail">${emoji}</div>
+        ${thumbnailHTML}
         <pre><code>${escapeHtml(video.codeSnippet)}</code></pre>
         <button onclick="copyCode(this)">📋 Copy Code</button>
     `;
