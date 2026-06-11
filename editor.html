@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeStudio Pro - Multi-Language IDE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+    <div class="ide-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="logo">
+                <span class="logo-icon">💻</span>
+                <span class="logo-text">CodeStudio Pro</span>
+            </div>
+            <div class="language-selector">
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="html">HTML + CSS + JS</option>
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="cpp">C++ (Beta)</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button onclick="runCode()" class="btn-run">
+                    <span>▶️</span> Run
+                </button>
+                <button onclick="togglePreview()" class="btn-preview">
+                    <span>🖼️</span> <span id="previewBtnText">Fullscreen</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Editor Area -->
+        <div class="main-area">
+            <!-- Code Editor Panel -->
+            <div class="editor-panel" id="editorPanel">
+                <div class="panel-header">
+                    <span>📝 Editor</span>
+                    <span class="file-name" id="fileName">index.html</span>
+                </div>
+                <textarea id="codeEditor"></textarea>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel" id="previewPanel">
+                <div class="panel-header">
+                    <span>️ Preview</span>
+                    <span class="status" id="status">Ready</span>
+                </div>
+                <div class="preview-container">
+                    <iframe id="previewFrame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
+                </div>
+                <div class="console-panel" id="consolePanel">
+                    <div class="console-header">
+                        <span>📋 Console</span>
+                        <button onclick="clearConsole()" class="btn-small">Clear</button>
+                    </div>
+                    <div id="consoleOutput" class="console-output"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Info Bar -->
+        <div class="info-bar">
+            <span id="cursorPos">Ln 1, Col 1</span>
+            <span id="charCount">0 characters</span>
+            <span id="languageInfo">HTML Mixed</span>
+        </div>
+    </div>
+
+    <script src="studio.js"></script>
+</body>
+</html>
