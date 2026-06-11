@@ -3,83 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeStudio Pro - Multi-Language IDE</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-    <link rel="stylesheet" href="studio.css">
+    <title>CodeStudio - Simple Code Editor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .top-bar {
+            background: linear-gradient(135deg, #161b22, #1f2937);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #58a6ff;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .logo {
+            color: #58a6ff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        select {
+            background: rgba(88, 166, 255, 0.1);
+            border: 2px solid #58a6ff;
+            color: #58a6ff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .btn-run {
+            background: linear-gradient(135deg, #238636, #2ea043);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4);
+        }
+        .btn-run:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 160, 67, 0.6);
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            flex-direction: row;
+        }
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #30363d;
+        }
+        .preview-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        .panel-header {
+            background: rgba(88, 166, 255, 0.1);
+            padding: 10px 16px;
+            color: #58a6ff;
+            font-weight: 600;
+            border-bottom: 1px solid #30363d;
+        }
+        #codeEditor {
+            flex: 1;
+            background: #0d1117;
+            color: #7ee787;
+            border: none;
+            padding: 20px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+        }
+        #previewFrame {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+        .console {
+            height: 150px;
+            background: #0d1117;
+            border-top: 2px solid #30363d;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+        }
+        .console-output { color: #7ee787; white-space: pre-wrap; }
+        .console-error { color: #f85149; background: rgba(248,81,73,0.1); padding: 8px; margin: 5px 0; border-left: 3px solid #f85149; }
+        .console-info { color: #58a6ff; }
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .editor-section, .preview-section { height: 50%; }
+        }
+    </style>
 </head>
 <body>
-    <div class="ide-container">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="logo">
-                <span class="logo-icon">💻</span>
-                <span class="logo-text">CodeStudio Pro</span>
-            </div>
-            <div class="language-selector">
-                <select id="languageSelect" onchange="changeLanguage()">
-                    <option value="html">HTML + CSS + JS</option>
-                    <option value="python">Python</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="cpp">C++ (Beta)</option>
-                </select>
-            </div>
-            <div class="action-buttons">
-                <button onclick="runCode()" class="btn-run">
-                    <span>▶️</span> Run
-                </button>
-                <button onclick="togglePreview()" class="btn-preview">
-                    <span>🖼️</span> <span id="previewBtnText">Fullscreen</span>
-                </button>
-            </div>
+    <div class="top-bar">
+        <div class="logo">💻 CodeStudio</div>
+        <select id="languageSelect" onchange="changeLanguage()">
+            <option value="html">HTML + CSS + JS</option>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+        </select>
+        <button onclick="runCode()" class="btn-run">▶️ Run Code</button>
+    </div>
+    
+    <div class="main-container">
+        <div class="editor-section">
+            <div class="panel-header">📝 Code Editor</div>
+            <textarea id="codeEditor" spellcheck="false" placeholder="Type your code here..."></textarea>
         </div>
-
-        <!-- Main Editor Area -->
-        <div class="main-area">
-            <!-- Code Editor Panel -->
-            <div class="editor-panel" id="editorPanel">
-                <div class="panel-header">
-                    <span>📝 Editor</span>
-                    <span class="file-name" id="fileName">index.html</span>
-                </div>
-                <textarea id="codeEditor"></textarea>
+        
+        <div class="preview-section">
+            <div class="panel-header">🖼️ Preview</div>
+            <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
+            <div class="console">
+                <div id="consoleOutput" class="console-output">Click "Run Code" to see output...</div>
             </div>
-
-            <!-- Preview Panel -->
-            <div class="preview-panel" id="previewPanel">
-                <div class="panel-header">
-                    <span>️ Preview</span>
-                    <span class="status" id="status">Ready</span>
-                </div>
-                <div class="preview-container">
-                    <iframe id="previewFrame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
-                </div>
-                <div class="console-panel" id="consolePanel">
-                    <div class="console-header">
-                        <span>📋 Console</span>
-                        <button onclick="clearConsole()" class="btn-small">Clear</button>
-                    </div>
-                    <div id="consoleOutput" class="console-output"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Info Bar -->
-        <div class="info-bar">
-            <span id="cursorPos">Ln 1, Col 1</span>
-            <span id="charCount">0 characters</span>
-            <span id="languageInfo">HTML Mixed</span>
         </div>
     </div>
 
-    <script src="studio.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script>
+        let pyodide = null;
+        let pyodideLoading = false;
+        
+        // Default code
+        const defaultCode = `<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+}
+h1 { color: #667eea; margin-bottom: 20px; }
+button {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+<div class="card">
+    <h1>🎉 Hello World!</h1>
+    <p>Welcome to CodeStudio</p>
+    <button onclick="changeText()">Click Me!</button>
+    <p id="output"></p>
+</div>
+<script>
+function changeText() {
+    document.getElementById('output').innerHTML = 
+        '<strong style="color: #667eea;">You clicked! 🚀</strong>';
+    console.log('Button clicked!');
+}
+<\/script>
+</body>
+</html>`;
+
+        document.getElementById('codeEditor').value = defaultCode;
+
+        function changeLanguage() {
+            const lang = document.getElementById('languageSelect').value;
+            const consoleOutput = document.getElementById('consoleOutput');
+            
+            if (lang === 'python') {
+                document.getElementById('codeEditor').value = `# Python Code Example
+print("🐍 Hello from Python!")
+
+# Variables
+name = "Coder"
+age = 20
+
+print(f"Hello, {name}!")
+print(f"You are {age} years old")
+
+# Loop
+print("\\n📊 Counting:")
+for i in range(1, 6):
+    print(f"  {i}")
+
+print("\\n✅ Done!")`;
+                consoleOutput.innerHTML = '<div class="console-info">ℹ️ Python mode selected. Click Run to execute.</div>';
+                
+                // Load Pyodide if not loaded
+                if (!pyodide && !pyodideLoading) {
+                    loadPyodideRuntime();
+                }
+            } else if (lang === 'javascript') {
+                document.getElementById('codeEditor').value = `// JavaScript Code Example
+console.log(" Hello from JavaScript!");
+
+// Variables
+let name = "Coder";
+let age = 20;
+
+console.log("Hello, " + name + "!");
+console.log("You are " + age + " years old");
+
+// Loop
+console.log("\\n📊 Counting:");
+for (let i = 1; i <= 5; i++) {
+    console.log("  " + i);
+}
+
+console.log("\\n✅ Done!");`;
+                consoleOutput.innerHTML = '<div class="console-info">ℹ️ JavaScript mode selected. Click Run to execute.</div>';
+            } else {
+                document.getElementById('codeEditor').value = defaultCode;
+                consoleOutput.innerHTML = '<div class="console-info">ℹ️ HTML mode selected. Click Run to preview.</div>';
+            }
+        }
+
+        async function loadPyodideRuntime() {
+            pyodideLoading = true;
+            const consoleOutput = document.getElementById('consoleOutput');
+            consoleOutput.innerHTML = '<div class="console-info">⏳ Loading Python environment... (10-15 seconds)</div>';
+            
+            try {
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+                });
+                consoleOutput.innerHTML += '<div class="console-info">✅ Python ready!</div>';
+            } catch (error) {
+                consoleOutput.innerHTML += '<div class="console-error">❌ Failed to load Python: ' + error.message + '</div>';
+            }
+            pyodideLoading = false;
+        }
+
+        async function runCode() {
+            const code = document.getElementById('codeEditor').value;
+            const lang = document.getElementById('languageSelect').value;
+            const consoleOutput = document.getElementById('consoleOutput');
+            const previewFrame = document.getElementById('previewFrame');
+            
+            consoleOutput.innerHTML = '';
+            
+            if (lang === 'html') {
+                // Run HTML/CSS/JS
+                const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                doc.open();
+                doc.write(code);
+                doc.close();
+                consoleOutput.innerHTML = '<div class="console-info">✅ HTML page loaded in preview!</div>';
+                
+            } else if (lang === 'python') {
+                // Run Python
+                if (!pyodide) {
+                    await loadPyodideRuntime();
+                    if (!pyodide) return;
+                }
+                
+                previewFrame.src = 'about:blank';
+                
+                try {
+                    let output = [];
+                    let errors = [];
+                    
+                    pyodide.setStdout({ batched: (msg) => output.push(msg) });
+                    pyodide.setStderr({ batched: (msg) => errors.push(msg) });
+                    
+                    await pyodide.runPythonAsync(code);
+                    
+                    if (output.length > 0) {
+                        consoleOutput.innerHTML = '<div class="console-output">' + output.join('\\n') + '</div>';
+                    }
+                    if (errors.length > 0) {
+                        consoleOutput.innerHTML += '<div class="console-error">' + errors.join('\\n') + '</div>';
+                    }
+                    if (output.length === 0 && errors.length === 0) {
+                        consoleOutput.innerHTML = '<div class="console-info">✅ Code executed (no output)</div>';
+                    }
+                } catch (error) {
+                    consoleOutput.innerHTML = '<div class="console-error">❌ Error: ' + error.message + '</div>';
+                }
+                
+            } else if (lang === 'javascript') {
+                // Run JavaScript
+                previewFrame.src = 'about:blank';
+                
+                try {
+                    let logs = [];
+                    
+                    const originalLog = console.log;
+                    const originalError = console.error;
+                    
+                    console.log = (...args) => logs.push({type: 'log', msg: args.join(' ')});
+                    console.error = (...args) => logs.push({type: 'error', msg: args.join(' ')});
+                    
+                    eval(code);
+                    
+                    console.log = originalLog;
+                    console.error = originalError;
+                    
+                    logs.forEach(log => {
+                        if (log.type === 'error') {
+                            consoleOutput.innerHTML += '<div class="console-error">' + log.msg + '</div>';
+                        } else {
+                            consoleOutput.innerHTML += '<div class="console-output">' + log.msg + '</div>';
+                        }
+                    });
+                    
+                    if (logs.length === 0) {
+                        consoleOutput.innerHTML = '<div class="console-info">✅ Code executed (no output)</div>';
+                    }
+                } catch (error) {
+                    consoleOutput.innerHTML = '<div class="console-error">❌ Error: ' + error.message + '</div>';
+                }
+            }
+        }
+    </script>
 </body>
 </html>
