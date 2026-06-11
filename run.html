@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeRunner - Test Python Code Live</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🐍 Python Code Runner</h1>
+            <p>Write code and see results instantly - No installation needed!</p>
+        </header>
+
+        <!-- Load Pyodide Status -->
+        <div id="loadingStatus" class="loading-bar">
+            <div class="loading-spinner"></div>
+            <span>Loading Python environment... (this takes 10-15 seconds)</span>
+        </div>
+
+        <!-- Main Editor Area -->
+        <div class="editor-container">
+            <!-- Code Editor -->
+            <div class="editor-section">
+                <div class="section-header">
+                    <h2>📝 Code Editor</h2>
+                    <button onclick="clearCode()" class="btn-secondary">Clear</button>
+                </div>
+                <textarea id="codeEditor" placeholder="Type or paste your Python code here...
+
+Example:
+print('Hello World')
+
+for i in range(5):
+    print(f'Count: {i}')" spellcheck="false"></textarea>
+                <div class="editor-footer">
+                    <span class="char-count">Characters: <span id="charCount">0</span></span>
+                </div>
+            </div>
+
+            <!-- Output Display -->
+            <div class="output-section">
+                <div class="section-header">
+                    <h2>📊 Output</h2>
+                    <button onclick="clearOutput()" class="btn-secondary">Clear Output</button>
+                </div>
+                <div id="output" class="output-display">
+                    <div class="output-placeholder">
+                        <p>👆 Click "Run Code" to see results here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Run Button -->
+        <div class="action-buttons">
+            <button onclick="runCode()" class="btn-run" id="runBtn">
+                <span>▶️</span> Run Code
+            </button>
+            <button onclick="loadExample()" class="btn-secondary">
+                <span>📋</span> Load Example
+            </button>
+        </div>
+
+        <!-- Sample Codes -->
+        <div class="samples-section">
+            <h3>📚 Quick Start Examples</h3>
+            <div class="sample-buttons">
+                <button onclick="loadSample('heart')" class="btn-sample">❤️ Heart Animation</button>
+                <button onclick="loadSample('calculator')" class="btn-sample">🧮 Calculator</button>
+                <button onclick="loadSample('pattern')" class="btn-sample">🔢 Number Pattern</button>
+                <button onclick="loadSample('plot')" class="btn-sample">📈 Graph Plot</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Powered by <strong>Pyodide</strong> - Python in your browser!</p>
+            <p><a href="index.html">← Back to CodeHub</a></p>
+        </footer>
+    </div>
+
+    <script src="editor.js"></script>
+</body>
+</html>
